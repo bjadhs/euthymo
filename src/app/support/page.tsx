@@ -1,0 +1,15 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowUpRight, BookOpen, Cloud, Download, LockKeyhole } from "lucide-react";
+import { ContactDetails, DocumentLayout } from "@/components/document-layout";
+import { hasContact, site } from "@/lib/site";
+
+export const metadata: Metadata = { title: "Help & support", description: "Find help with Moodimo, journal backups, iCloud sync, privacy, and purchases.", alternates: { canonical: "/support/" } };
+
+export default function Support() {
+  return <DocumentLayout eyebrow="A LITTLE HELP ALONG THE WAY" title="You’re in the right place." intro="A few useful starting points for looking after your journal and making yourself at home in Moodimo." sections={[{ id: "help", title: "Everyday help" }, { id: "purchases", title: "Purchases" }, { id: "contact", title: "Get in touch" }]}>
+    <section id="help"><div className="support-grid"><article className="support-card"><Download size={25} /><h2>Keep a copy.</h2><p>In the app, go to Settings → Backup & data → Export full backup. Store the file somewhere private. Importing a backup replaces the current archive after you review it.</p></article><article className="support-card"><Cloud size={25} /><h2>Keep in step.</h2><p>Optional sync is in Settings → iCloud sync. Your devices need the same Apple Account and iCloud access. Saving locally still works while you are offline.</p></article><article className="support-card"><LockKeyhole size={25} /><h2>Keep it private.</h2><p>Turn on app lock in Settings. Manage notifications and permissions in your device’s system settings. Read the privacy policy for the details on backups and deletion.</p><Link href="/privacy/">Read the privacy policy</Link></article><article className="support-card"><BookOpen size={25} /><h2>Find a moment.</h2><p>Look through your journal history or drafts. Deleted journal entries stay in Trash until you permanently remove them. Recovery copies are managed separately in Settings.</p></article></div></section>
+    <section id="purchases"><h2>Questions about a purchase?</h2><p>When Moodimo Pro is available, use Restore Purchases in the app if a purchase is missing. Apple manages subscription billing and refunds.</p><p><a href="https://apps.apple.com/account/subscriptions">Manage Apple subscriptions</a> · <a href="https://reportaproblem.apple.com/">Request help with a purchase</a></p></section>
+    <section id="contact"><h2>A human on the other side.</h2><ContactDetails />{hasContact ? <><p>Include your device model, operating system version, Moodimo version, and a short description of what happened. Please leave out private journal entries unless they are essential to explaining your issue.</p><a href={`mailto:${site.supportEmail}`} className="text-link">Email support<ArrowUpRight size={16} /></a></> : <p>Moodimo is preparing for its first public release. A direct support email will be available here before launch. In the meantime, the <Link href="/#faq">common questions</Link> cover the basics.</p>}</section>
+  </DocumentLayout>;
+}
