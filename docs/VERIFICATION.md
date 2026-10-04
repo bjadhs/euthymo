@@ -26,14 +26,24 @@ Reviewed in Chrome through the connected browser, at effective CSS widths of 320
 - No browser errors or warnings were observed during the checks.
 - Local review screenshots are in ignored `artifacts/` (desktop, mobile, and feature views). They are not included in the public Git repository.
 
-This is visual and interaction review, not a full accessibility audit, device test matrix, or live hosting verification. Reduced-motion styles and visible keyboard focus are implemented; assistive-technology behavior has not been comprehensively audited. No native app UI test suite was run.
+This is visual and interaction review, not a full accessibility audit or device test matrix. Reduced-motion styles and visible keyboard focus are implemented; assistive-technology behavior has not been comprehensively audited. No native app UI test suite was run.
+
+## Hostinger deployment — 5 October 2026 (Australia/Sydney)
+
+- Published developer name `bijbrin` and contact `bijbrin@gmail.com`, as supplied by the developer. Updated the policy to reflect Hostinger hosting, actual web/proxy logging configuration, and Gmail contact processing. `bun run release:check` passes.
+- Pushed deployment commit `c21b060` to `bjadhs/euthymo`. Its GitHub Actions build passed: https://github.com/bjadhs/euthymo/actions/runs/37205499973.
+- Cloned the repository into `/opt/euthymo` on the Hostinger VPS. Built the production Docker image there using Node 24 and Bun 1.3.13; lint, static export, TypeScript, and publication checks all passed inside the build.
+- Deployed container `euthymo-web` through the existing Traefik proxy on `dokploy-network`. No host ports were added and no existing applications or shared proxy were restarted. Container health and `nginx -t` passed.
+- Both base and HTTPS Compose configurations validate. The website container's technical logs rotate at 1 MB per file with a maximum of three files; routine Nginx access logs are disabled.
+- Tested the public server at `72.62.72.132` using `curl --resolve` with the intended domain. `/`, `/privacy/`, `/support/`, `/terms/`, `/robots.txt`, `/sitemap.xml`, logo, social image, and hashed CSS returned HTTP 200. Privacy HTML includes the supplied developer name, email, and intended canonical URL. The apex host also returned the homepage.
+- `/privacy` redirects to `/privacy/`; a nonexistent page returns 404. Requests for `.env` and `.git/config` return 403. Security headers and one-year hashed-asset caching are present.
+- At verification, public DNS still pointed to `2.57.91.91`, not this VPS. The HTTPS activation helper correctly stopped on that mismatch without changing routing. HTTPS certificate issuance, canonical HTTPS redirects, and requests through normal domain resolution remain pending the developer's DNS update.
 
 ## Still required before public launch
 
-- Supply the real developer/business name and monitored support/privacy email in `src/lib/site.ts`.
-- Confirm hosting providers, logging/retention, policy date, and the policy against the final shipping app; update the prelaunch hosting paragraph and set `policyReviewed` after review. `bun run release:check` currently reports these missing publication details.
+- Point the apex and `www` DNS records to `72.62.72.132`, then run `bash deploy/enable-https.sh` from `/opt/euthymo`. Verify the certificate, HTTP-to-HTTPS and apex-to-www redirects, and direct legal-page requests through normal public DNS.
+- Recheck the policy against the final shipping app if its data handling changes before release.
 - Keep the coming-soon state until a real App Store listing is available. The site has no fabricated downloads, ratings, testimonials, or working email collection form.
-- Deploy to Hostinger, verify the domain and certificate, redirects, direct legal-page requests, response codes, and any host-injected scripts. No live deployment was performed.
 - Only after the final policy is live, set `ProLinks.privacyPolicy`, add the policy URL to App Store Connect, and provide an easily accessible privacy entry point in the app (for example Settings).
 
 The privacy draft was based on implementation evidence, not a claim of legal certification or guaranteed App Review approval.
