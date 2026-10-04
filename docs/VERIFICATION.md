@@ -37,11 +37,12 @@ This is visual and interaction review, not a full accessibility audit or device 
 - Both base and HTTPS Compose configurations validate. The website container's technical logs rotate at 1 MB per file with a maximum of three files; routine Nginx access logs are disabled.
 - Tested the public server at `72.62.72.132` using `curl --resolve` with the intended domain. `/`, `/privacy/`, `/support/`, `/terms/`, `/robots.txt`, `/sitemap.xml`, logo, social image, and hashed CSS returned HTTP 200. Privacy HTML includes the supplied developer name, email, and intended canonical URL. The apex host also returned the homepage.
 - `/privacy` redirects to `/privacy/`; a nonexistent page returns 404. Requests for `.env` and `.git/config` return 403. Security headers and one-year hashed-asset caching are present.
-- At verification, public DNS still pointed to `2.57.91.91`, not this VPS. The HTTPS activation helper correctly stopped on that mismatch without changing routing. HTTPS certificate issuance, canonical HTTPS redirects, and requests through normal domain resolution remain pending the developer's DNS update.
+- After the developer updated the apex A record, both `euthymo.com` and `www.euthymo.com` resolved to `72.62.72.132`; the existing `www` CNAME points to the apex. Ran the HTTPS activation helper successfully. A trusted Let’s Encrypt certificate covers both names, with expiry 2 January 2027 and renewal managed by the existing Traefik resolver.
+- Verified normal public HTTPS requests (without resolver overrides or disabling certificate checks): home, privacy, support, and terms returned 200. HTTP redirects to HTTPS, the apex redirects to `www`, and the privacy path and query string are preserved.
+- Live browser review exposed a remaining prelaunch hosting paragraph; replaced it with the verified production logging details and removed the prelaunch wording.
 
 ## Still required before public launch
 
-- Point the apex and `www` DNS records to `72.62.72.132`, then run `bash deploy/enable-https.sh` from `/opt/euthymo`. Verify the certificate, HTTP-to-HTTPS and apex-to-www redirects, and direct legal-page requests through normal public DNS.
 - Recheck the policy against the final shipping app if its data handling changes before release.
 - Keep the coming-soon state until a real App Store listing is available. The site has no fabricated downloads, ratings, testimonials, or working email collection form.
 - Only after the final policy is live, set `ProLinks.privacyPolicy`, add the policy URL to App Store Connect, and provide an easily accessible privacy entry point in the app (for example Settings).
