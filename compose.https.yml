@@ -1,0 +1,16 @@
+# Enable after BOTH public DNS names resolve to this VPS.
+# Traefik's existing letsencrypt resolver handles certificate renewal.
+services:
+  web:
+    labels:
+      traefik.http.routers.euthymo-http.middlewares: euthymo-secure
+      traefik.http.middlewares.euthymo-secure.redirectscheme.scheme: https
+      traefik.http.middlewares.euthymo-secure.redirectscheme.permanent: "true"
+      traefik.http.routers.euthymo-https.rule: "Host(`euthymo.com`) || Host(`www.euthymo.com`)"
+      traefik.http.routers.euthymo-https.entrypoints: websecure
+      traefik.http.routers.euthymo-https.service: euthymo
+      traefik.http.routers.euthymo-https.middlewares: euthymo-canonical
+      traefik.http.routers.euthymo-https.tls.certresolver: letsencrypt
+      traefik.http.middlewares.euthymo-canonical.redirectregex.regex: "^https://euthymo\\.com/(.*)"
+      traefik.http.middlewares.euthymo-canonical.redirectregex.replacement: "https://www.euthymo.com/$${1}"
+      traefik.http.middlewares.euthymo-canonical.redirectregex.permanent: "true"

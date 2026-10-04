@@ -1,0 +1,33 @@
+name: euthymo
+
+services:
+  web:
+    build: .
+    image: euthymo-website:latest
+    container_name: euthymo-web
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+    # No published host ports; traffic arrives only through the existing proxy.
+    expose:
+      - "8080"
+    mem_limit: 128m
+    cpus: 0.5
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "3"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: dokploy-network
+      traefik.http.services.euthymo.loadbalancer.server.port: "8080"
+      traefik.http.routers.euthymo-http.rule: "Host(`euthymo.com`) || Host(`www.euthymo.com`)"
+      traefik.http.routers.euthymo-http.entrypoints: web
+      traefik.http.routers.euthymo-http.service: euthymo
+
+networks:
+  dokploy-network:
+    external: true

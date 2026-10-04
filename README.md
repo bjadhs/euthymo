@@ -1,6 +1,6 @@
-# Moodimo at euthymo.com
+# Euthymo at euthymo.com
 
-A warm, private little home for Moodimo. Built with **Next.js 16, React 19, TypeScript, and Tailwind CSS 4**. The public app name is currently **Moodimo**; the website is **https://www.euthymo.com**.
+A warm, private little home for Euthymo. Built with **Next.js 16, React 19, TypeScript, and Tailwind CSS 4**. The public app name is currently **Euthymo**; the website is **https://www.euthymo.com**.
 
 The project is self-contained. It builds to plain HTML, CSS, JavaScript, and locally hosted assets in `out/`, ready for Hostinger. It has no runtime backend, database, API keys, analytics, cookies, signup form, or remote font requests.
 
@@ -46,11 +46,11 @@ bun run typecheck
 bun run release:check
 ```
 
-The first three check source and build correctness. `release:check` checks publication details; it currently fails intentionally while the developer identity, working privacy/support email, and final privacy review are outstanding. It is not a legal compliance certification. GitHub Actions builds the site and attaches the `out/` directory as an artifact, without deploying it.
+The first three check source and build correctness. `release:check` checks publication details; it verifies the configured developer identity, privacy/support email, policy status, and exported routes. It is not a legal compliance certification. GitHub Actions builds the site and attaches the `out/` directory as an artifact, without deploying it.
 
 ## Before publication
 
-Edit `src/lib/site.ts` with the real developer/business name and a monitored support email. Confirm the public app name (currently Moodimo), the policy date, actual Hostinger log retention and providers, and the policy against the final shipping app. Update the hosting paragraph to reflect the deployed setup, remove its prelaunch sentence, then set `policyReviewed` to `true`. The policy’s preparation notice disappears once both contact fields and this flag are set.
+The public developer name is **bijbrin** and the support/privacy email is **bijbrin@gmail.com**, as supplied by the owner. These are configured in `src/lib/site.ts`. The policy describes the actual Hostinger VPS setup: access logging off in the site’s Nginx container, no access-log configuration in the shared Traefik proxy, capped website-container operational logs, and separate host-level logs. Contact, policy date, and publication status are set. Recheck this description if hosting or data practices change.
 
 `appStoreUrl` stays empty until a real public listing exists. The site honestly displays **Coming soon**, without a nonfunctional download or waitlist button. Supplying the real listing changes the header and final call to action; update the launch copy and release-status FAQ at the same time.
 
@@ -62,29 +62,61 @@ Repository: https://github.com/bjadhs/euthymo
 
 Only this standalone website belongs in this repository. Native app source, journals, simulator data, credentials, research, and local review screenshots are not included.
 
-### On a Hostinger VPS with Node and Bun installed
+### Current VPS: Docker + the existing Dokploy Traefik proxy
+
+Public server IP: **72.62.72.132**. The domain’s public A records must use this address, not the server’s Tailscale address.
+
+The repository lives at `/opt/euthymo`. Docker builds with Node 24 and Bun 1.3.13, then serves only the exported `out/` through Nginx. No Node/Bun installation is needed on the host. The `euthymo-web` container joins the existing `dokploy-network` and publishes no host port. Traefik routes the domain through the already-open public ports 80/443. The deployment does not restart or reconfigure other apps.
+
+Initial deployment, before DNS is ready:
 
 ```sh
-git clone https://github.com/bjadhs/euthymo.git
-cd euthymo
-bun install --frozen-lockfile
-bun run lint
-bun run build
-bun run typecheck
-bun run release:check
+git clone https://github.com/bjadhs/euthymo.git /opt/euthymo
+cd /opt/euthymo
+docker compose build
+docker compose up -d --wait
 ```
 
-After those checks pass, serve a copy of **only the contents of `out/`**. Keep the Git checkout, `.git`, and `node_modules` outside the public document root. For a VPS, `deploy/nginx.conf` is a reviewable Nginx template with `www` as canonical, HTTP → HTTPS redirects, a real 404, and long-lived caching for hashed assets. Adjust the document root and TLS certificate paths to the server. Provision a certificate covering both `euthymo.com` and `www.euthymo.com` before enabling its HTTPS blocks. The template turns off Nginx access logging; upstream hosting/security logs still need confirmation.
+This starts HTTP routing for `euthymo.com` and `www.euthymo.com`. It can be checked before changing DNS:
 
-For each update, `git pull --ff-only`, install using the lockfile, rebuild, and run the checks. Copy the complete new `out/` into a new release directory outside the checkout; switch `/var/www/euthymo/current` to that directory after the copy completes. Keeping the previous release allows a quick rollback without a partially copied live site. This project does not run deployment commands automatically.
+```sh
+curl --resolve www.euthymo.com:80:72.62.72.132 http://www.euthymo.com/privacy/
+```
 
-### On Hostinger shared hosting
+Set the domain DNS records at the authoritative provider:
 
-Build locally or download the `euthymo-static-site` artifact from a successful GitHub Actions run. Back up the existing site, then upload the **contents** of `out/` into the domain’s document root (commonly `public_html`). A Next.js Node process is not needed. Do not upload the source repository. Configure the host’s HTTPS and canonical-domain redirects, and use `404.html` for unknown routes. Do not add an SPA rewrite that sends every URL to the homepage: `/privacy/` must load its own document directly.
+| Type | Name | Value |
+| --- | --- | --- |
+| A | `@` | `72.62.72.132` |
+| A | `www` | `72.62.72.132` |
 
-### Verify after hosting
+Replace conflicting A/AAAA/CNAME records for those two names. Preserve unrelated records, including email MX/TXT records. If DNS is hosted at Hostinger: Domains → Domain portfolio → Manage → DNS / Nameservers. Do not move nameservers just to deploy this website.
 
-Verify HTTPS at both domain names, the apex → `www` redirect, and direct requests to `/privacy/`, `/terms/`, `/support/`, `/robots.txt`, and `/sitemap.xml`. Reload legal pages directly, check a nonexistent URL returns a 404, and inspect the page on a phone. Confirm no hosting add-on injects analytics or tracking that contradicts the policy. Publishing the policy does not by itself guarantee App Review approval.
+After both names resolve to this VPS:
+
+```sh
+cd /opt/euthymo
+bash deploy/enable-https.sh
+```
+
+The script checks DNS first, then adds the HTTPS routing overlay. The existing Traefik `letsencrypt` resolver issues and renews the certificate. HTTP redirects to HTTPS, and the HTTPS apex redirects to `https://www.euthymo.com`, preserving the path. Confirm the certificate and `/privacy/` before entering the URL in App Store Connect.
+
+Subsequent production updates (after HTTPS is enabled):
+
+```sh
+cd /opt/euthymo
+git pull --ff-only
+docker compose -f compose.yml -f compose.https.yml build
+docker compose -f compose.yml -f compose.https.yml up -d --wait
+```
+
+The Docker build runs lint, the production build, TypeScript, and publication checks before replacing the running container. A failed build leaves the running container in place. The static site has a health check and bounded container logs. For rollback, rebuild a previously verified Git commit and run the same compose command. Do not run the base compose file alone after enabling HTTPS, because it would remove the HTTPS labels.
+
+`deploy/nginx.conf` is an alternative standalone-host template. It is **not** the active configuration on this VPS; use `deploy/container-nginx.conf` and the Compose files for this deployment.
+
+### Other static hosting
+
+For shared hosting, build locally or download `euthymo-static-site` from a successful GitHub Actions run. Serve only the contents of `out/`; keep `.git`, source, and `node_modules` outside the web root. Configure the host’s HTTPS and canonical-domain redirects and a proper `404.html` response. Do not rewrite all URLs to the homepage: `/privacy/` must load its own document directly.
 
 ## Connect the privacy URL to the app after it is live
 

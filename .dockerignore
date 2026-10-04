@@ -1,0 +1,8 @@
+.git
+.next
+out
+node_modules
+artifacts
+.env*
+*.log
+*.tsbuildinfo
