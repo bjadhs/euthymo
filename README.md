@@ -131,3 +131,7 @@ static let privacyPolicy: URL? = URL(string: "https://www.euthymo.com/privacy/")
 Use the same URL in App Store Connect. Also expose it in an easily accessible app location such as Settings; a Pro paywall alone is not a general privacy entry point, particularly while Pro is disabled in release builds. The native app has not been changed by this website project.
 
 References: [Apple App Review privacy requirements](https://developer.apple.com/app-store/review/guidelines/#privacy), [Next.js static exports](https://nextjs.org/docs/app/guides/static-exports), [Tailwind PostCSS setup](https://tailwindcss.com/docs/installation/using-postcss), [Apple standard EULA](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/), [Hostinger privacy policy](https://www.hostinger.com/legal/privacy-policy).
+
+## KidsCare pages
+
+KidsCare’s separate family-care beta is hosted alongside Euthymo at `/kidscare/`, with its own `/kidscare/privacy/` policy and `/kidscare/support/` help page. These describe KidsCare 1.0 TestFlight behavior, including local care data and optional OpenRouter AI. They do not replace Euthymo’s policy. Use the verified public HTTPS URLs in KidsCare’s Apple metadata. `release:check` requires all three exports.

@@ -1,5 +1,13 @@
 # Website verification — 4–5 October 2026
 
+## KidsCare pages — 30 October 2026
+
+Added `/kidscare/`, `/kidscare/privacy/` and `/kidscare/support/` using the existing document layout and published developer contact. The policy describes the current KidsCare 1.0 beta: local records, optional consented OpenRouter requests, selected-thread history, optional names/derived age, 30-day readable-chat retention, exports, recovery copies, deletion and demonstration services. Existing Euthymo policy content is unchanged.
+
+Verified in an isolated worktree from origin/main to preserve unrelated edits in the original website checkout. Frozen-lockfile install, ESLint, production static export, TypeScript and publication checks passed. Served the actual export locally on 127.0.0.1:3013: all three routes returned200 with distinct KidsCare titles, exact canonical URLs and no broken internal page/fragment links. Native Chrome desktop screenshots of privacy/support were visually reviewed; titles, contents navigation, cross-links and support cards rendered correctly. No mobile/assistive audit claimed. Build/probe evidence is in the local KidsCare project at `artifacts/2026-10-30-2035-apple-beta-family-setup/website-check-final.log` and `website-route-check.json`; screenshots are visible in the CUA tool output, not included in this public repository.
+
+User explicitly authorized pushing to main for existing server deployment. Live deployment verification follows the push; a successful local build is not a deployed-site claim. No native Euthymo source, family records, credentials or private tester lists are included.
+
 Scope: the standalone website for www.euthymo.com. The native Swift app was not changed, rebuilt, or tested as part of this website task.
 
 ## Build and route evidence

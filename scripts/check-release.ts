@@ -8,7 +8,7 @@ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(site.supportEmail)) missing.push("Set a w
 if (!site.policyReviewed) missing.push("Confirm the privacy policy, hosting logs/retention, contact details, and date; set policyReviewed to true.");
 if (site.url !== "https://www.euthymo.com") missing.push("Confirm the production canonical domain.");
 if (site.appStoreUrl && !/^https:\/\/apps\.apple\.com\//.test(site.appStoreUrl)) missing.push("Use a real Apple App Store URL, or leave it empty for coming soon.");
-for (const path of ["out/index.html", "out/privacy/index.html", "out/terms/index.html", "out/support/index.html", "out/404.html", "out/sitemap.xml", "out/robots.txt"]) {
+for (const path of ["out/index.html", "out/privacy/index.html", "out/terms/index.html", "out/support/index.html", "out/kidscare/index.html", "out/kidscare/privacy/index.html", "out/kidscare/support/index.html", "out/404.html", "out/sitemap.xml", "out/robots.txt"]) {
   if (!existsSync(path)) missing.push(`Missing ${path}; run bun run build first.`);
 }
 if (missing.length) {
