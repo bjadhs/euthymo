@@ -7,7 +7,7 @@ services:
     container_name: euthymo-web
     restart: unless-stopped
     networks:
-      - dokploy-network
+      - web-proxy
     # No published host ports; traffic arrives only through the existing proxy.
     expose:
       - "8080"
@@ -22,12 +22,15 @@ services:
         max-file: "3"
     labels:
       traefik.enable: "true"
-      traefik.docker.network: dokploy-network
+      traefik.docker.network: euthymo-web-proxy
       traefik.http.services.euthymo.loadbalancer.server.port: "8080"
       traefik.http.routers.euthymo-http.rule: "Host(`euthymo.com`) || Host(`www.euthymo.com`)"
       traefik.http.routers.euthymo-http.entrypoints: web
       traefik.http.routers.euthymo-http.service: euthymo
 
 networks:
-  dokploy-network:
-    external: true
+  # The host-mode Traefik proxy can route to this local bridge. The Swarm
+  # overlay's 10.0.1.x container addresses are not reachable from the host.
+  web-proxy:
+    name: euthymo-web-proxy
+    driver: bridge

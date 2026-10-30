@@ -66,7 +66,7 @@ Only this standalone website belongs in this repository. Native app source, jour
 
 Public server IP: **72.62.72.132**. The domain’s public A records must use this address, not the server’s Tailscale address.
 
-The repository lives at `/opt/euthymo`. Docker builds with Node 24 and Bun 1.3.13, then serves only the exported `out/` through Nginx. No Node/Bun installation is needed on the host. The `euthymo-web` container joins the existing `dokploy-network` and publishes no host port. Traefik routes the domain through the already-open public ports 80/443. The deployment does not restart or reconfigure other apps.
+The repository lives at `/opt/euthymo`. Docker builds with Node 24 and Bun 1.3.13, then serves only the exported `out/` through Nginx. No Node/Bun installation is needed on the host. The `euthymo-web` container joins the dedicated `euthymo-web-proxy` bridge and publishes no host port. The current host-mode Traefik proxy routes the domain through the already-open public ports 80/443. Its Docker network label selects this bridge: the previous Swarm overlay addresses were unreachable from the host. The deployment does not restart or reconfigure other apps.
 
 Initial deployment, before DNS is ready:
 
