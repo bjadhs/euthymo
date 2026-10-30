@@ -56,3 +56,11 @@ This is visual and interaction review, not a full accessibility audit or device 
 - Only after the final policy is live, set `ProLinks.privacyPolicy`, add the policy URL to App Store Connect, and provide an easily accessible privacy entry point in the app (for example Settings).
 
 The privacy draft was based on implementation evidence, not a claim of legal certification or guaranteed App Review approval.
+
+## KidsCare live deployment and routing recovery — 30 October 2026
+
+Pushed pages in bd5ae81 and routing fix in5135aba to main. Both GitHub builds passed (runs41038465886 and41039576292). The server had not pulled the new main revision, so deployed the verified changes over its existing Tailscale SSH connection at the owner’s instruction. Only the Euthymo website container was rebuilt/recreated; other apps and the proxy were not restarted. Automatic GitHub-to-server pulling was not observed or newly configured.
+
+Diagnosed the existing HTTPS timeout: the host-mode Traefik process could not reach the website’s Swarm overlay address (host route went out the public interface), while the page returned200 inside Nginx. Changed only the website’s Compose network/Traefik network label to a dedicated local bridge, with no published host port. Compose configuration validation passed; the recreated container is healthy and local proxy HTTPS returns200. The proxy’s certificate was valid and was not bypassed or replaced.
+
+Independent public HTTPS GETs returned200 with the correct titles and canonical URLs for `/kidscare/`, `/kidscare/privacy/`, `/kidscare/support/`, and the existing `/privacy/`. Evidence in local KidsCare project: `artifacts/2026-10-30-2035-apple-beta-family-setup/website-live-verified.json`, `website-server-deploy.log`, `website-routing-fix.log`. This establishes live route/content delivery, not a full mobile or accessibility audit.
